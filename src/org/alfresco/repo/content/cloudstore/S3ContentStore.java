@@ -46,12 +46,6 @@ import org.jets3t.service.security.AWSCredentials;
  */
 public class S3ContentStore extends AbstractContentStore {
 
-	/** The access key. */
-	private final String accessKey = "AKIAIQ45OZ74RYTEGOWQ";
-	
-	/** The secret key. */
-	private final String secretKey= "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";
-
 	/** The s3Service. */
 	private S3Service s3Service;
 	
@@ -61,76 +55,16 @@ public class S3ContentStore extends AbstractContentStore {
 	/** The Constant logger. */
 	private static final Log LOG = LogFactory.getLog(S3ContentStore.class);
 	private String bucketName;
+	private String accessKey;
+	private String secretKey;
 
 	/**
 	 * Initialize an S3 Content Store.
 	 */
 	public S3ContentStore() {
-
-		if(LOG.isInfoEnabled()){
-			LOG.info("S3ContentStore Initializing: accessKey=" + accessKey
-					+ " secretKey=" + secretKey + " bucketName="+ bucketName);
-		}
-		
-		//System.out.println("S3ContentStore Initializing: accessKey="+accessKey+" secretKey="+secretKey+" bucketName="+bucketName);
-
-		// Instantiate S3 Service and create necessary bucket.
-		try {
-			s3Service = new RestS3Service(new AWSCredentials(accessKey, secretKey));
-			if(LOG.isInfoEnabled()){
-				LOG.info("S3ContentStore Creating Bucket: bucketName="+ bucketName);
-			}
-			bucket = s3Service.getOrCreateBucket(bucketName);
-			
-			if(LOG.isInfoEnabled()){
-				LOG.info("S3ContentStore Initialization Complete");
-			}
-		   //System.out.println("S3ContentStore Initialization Complete");
-		} catch (S3ServiceException s3ServExcp) {
-			if(LOG.isErrorEnabled()){
-				LOG.error("S3ContentStore Initialization Error in Constructor: "+ s3ServExcp);
-			}
-		}
 	}
 	
-	/**
-	 * Initialize an S3 Content Store.
-	 *
-	 * @param accessKey Amazon Web Services Access Key
-	 * @param secretKey Amazon Web Services Secret Key
-	 * @param bucketName Name of S3 bucket to store content into.
-	 */
-	public S3ContentStore(final String accessKey, final String secretKey,
-			final String bucketName) {
 
-		if(LOG.isInfoEnabled()){
-			LOG.info("S3ContentStore Initializing: accessKey=" + accessKey
-					+ " secretKey=" + secretKey + " bucketName="+ bucketName);
-		}
-		
-		//System.out.println("S3ContentStore Initializing, accessKey: "+accessKey+" secretKey: "+secretKey+" and bucketName: "+bucketName);
-
-		// Instantiate S3 Service and create necessary bucket.
-		try {
-			s3Service = new RestS3Service(new AWSCredentials(accessKey, secretKey));
-			if(LOG.isInfoEnabled()){
-				LOG.info("S3ContentStore Creating Bucket: bucketName="+ bucketName);
-			}
-			
-			// System.out.println("S3ContentStore Creating Bucket: bucketName="+bucketName);
-			bucket = s3Service.getOrCreateBucket(bucketName);
-			
-			if(LOG.isInfoEnabled()){
-				LOG.info("S3ContentStore Initialization Complete");
-			}
-			
-			// System.out.println("S3ContentStore Initialization Complete");
-		} catch (S3ServiceException s3ServExcp) {
-			if(LOG.isErrorEnabled()){
-				LOG.error("S3ContentStore Initialization Error in Constructor: "+ s3ServExcp);
-			}
-		}
-	}
 
 	/**
 	 * The main method.<br/>
@@ -249,5 +183,47 @@ public class S3ContentStore extends AbstractContentStore {
 		return bucketName;
 	}
 
+	public void init(){
+		if(LOG.isInfoEnabled()){
+			LOG.info("S3ContentStore Initializing: accessKey=" + accessKey
+					+ " secretKey=" + secretKey + " bucketName="+ bucketName);
+		}
 
+		//System.out.println("S3ContentStore Initializing: accessKey="+accessKey+" secretKey="+secretKey+" bucketName="+bucketName);
+
+		// Instantiate S3 Service and create necessary bucket.
+		try {
+			s3Service = new RestS3Service(new AWSCredentials(accessKey, secretKey));
+			if(LOG.isInfoEnabled()){
+				LOG.info("S3ContentStore Creating Bucket: bucketName="+ bucketName);
+			}
+			bucket = s3Service.getOrCreateBucket(bucketName);
+
+			if(LOG.isInfoEnabled()){
+				LOG.info("S3ContentStore Initialization Complete");
+			}
+			//System.out.println("S3ContentStore Initialization Complete");
+		} catch (S3ServiceException s3ServExcp) {
+			if(LOG.isErrorEnabled()){
+				LOG.error("S3ContentStore Initialization Error in Constructor: "+ s3ServExcp);
+			}
+		}
+	}
+
+
+	public void setAccessKey(String accessKey) {
+		this.accessKey = accessKey;
+	}
+
+	public String getAccessKey() {
+		return accessKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
 }
