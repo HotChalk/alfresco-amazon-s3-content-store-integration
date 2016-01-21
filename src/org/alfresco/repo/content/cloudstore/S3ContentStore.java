@@ -21,7 +21,6 @@ package org.alfresco.repo.content.cloudstore;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Properties;
 
 import org.alfresco.repo.content.AbstractContentStore;
 import org.alfresco.repo.content.ContentStore;
@@ -38,9 +37,6 @@ import org.jets3t.service.impl.rest.httpclient.RestS3Service;
 import org.jets3t.service.model.S3Bucket;
 import org.jets3t.service.security.AWSCredentials;
 
-import com.abhinav.alfresco.publishing.cloudstore.CloudStoreConstants;
-import com.abhinav.alfresco.publishing.cloudstore.ConfigReader;
-
 /**
  * Amazon S3 Content Store Implementation
  * {@link org.alfresco.repo.content.ContentStore}.
@@ -51,13 +47,10 @@ import com.abhinav.alfresco.publishing.cloudstore.ConfigReader;
 public class S3ContentStore extends AbstractContentStore {
 
 	/** The access key. */
-	private final String accessKey;
+	private final String accessKey = "AKIAIQ45OZ74RYTEGOWQ";
 	
 	/** The secret key. */
-	private final String secretKey;
-	
-	/** The bucket name. */
-	private final String bucketName;
+	private final String secretKey= "etWwgbgCOV3mhTQLVekqx1n+gIQvxX0yOdTZr12z";
 
 	/** The s3Service. */
 	private S3Service s3Service;
@@ -67,20 +60,12 @@ public class S3ContentStore extends AbstractContentStore {
 
 	/** The Constant logger. */
 	private static final Log LOG = LogFactory.getLog(S3ContentStore.class);
-	
+	private String bucketName;
+
 	/**
 	 * Initialize an S3 Content Store.
 	 */
 	public S3ContentStore() {
-		
-		// Getting the secret keys from properties file.
-		final Properties props = ConfigReader.getInstance().getKeys();
-		// Amazon Web Services Access Key
-		this.accessKey = props.getProperty(CloudStoreConstants.ACCESSKEY);
-		// Amazon Web Services Secret Key
-		this.secretKey = props.getProperty(CloudStoreConstants.SECRETKEY);
-		// Amazon Web Services BucketName
-		this.bucketName = props.getProperty(CloudStoreConstants.BUCKET);
 
 		if(LOG.isInfoEnabled()){
 			LOG.info("S3ContentStore Initializing: accessKey=" + accessKey
@@ -117,9 +102,6 @@ public class S3ContentStore extends AbstractContentStore {
 	 */
 	public S3ContentStore(final String accessKey, final String secretKey,
 			final String bucketName) {
-		this.accessKey = accessKey;
-		this.secretKey = secretKey;
-		this.bucketName = bucketName;
 
 		if(LOG.isInfoEnabled()){
 			LOG.info("S3ContentStore Initializing: accessKey=" + accessKey
@@ -158,8 +140,8 @@ public class S3ContentStore extends AbstractContentStore {
 	 * @throws S3ServiceException the s3 service exception
 	 */
 	public static void main(String[] args) throws S3ServiceException {
-		final S3Service s3Service = new RestS3Service(new AWSCredentials("xxx", "xxx"));
-		final S3Bucket bucket = s3Service.getOrCreateBucket("test_bucket");
+		final S3Service s3Service = new RestS3Service(new AWSCredentials("AKIAIQ45OZ74RYTEGOWQ", "etWwgbgCOV3mhTQLVekqx1n+gIQvxX0yOdTZr12z"));
+		final S3Bucket bucket = s3Service.getOrCreateBucket("alfresco-test");
 		LOG.info("Bucket name: " + bucket.getName());
 		LOG.info("S3ContentStore Initialization Complete");
 	}
@@ -258,4 +240,14 @@ public class S3ContentStore extends AbstractContentStore {
 		
 		return urlStr.toString();
 	}
-} 
+
+	public void setBucketName(String bucketName) {
+		this.bucketName = bucketName;
+	}
+
+	public String getBucketName() {
+		return bucketName;
+	}
+
+
+}

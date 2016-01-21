@@ -17,7 +17,9 @@
 	</bean>
 
    <!--  S3 Caching Content Store -->
-   <bean id="s3ContentStore" class="org.alfresco.repo.content.cloudstore.S3ContentStore"/>
+   <bean id="s3ContentStore" class="org.alfresco.repo.content.cloudstore.S3ContentStore">
+       <property name="bucketName" value="alfresco-test"/>
+   </bean>
    
    <bean id="contentCache" class="org.alfresco.repo.content.caching.ContentCacheImpl">
 		<property name="memoryStore" ref="cachingContentStoreCache" />
