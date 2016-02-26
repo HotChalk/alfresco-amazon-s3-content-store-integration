@@ -20,25 +20,28 @@
 	 * limitations under the License.
    =======================================================
 -->
-<project name="Alfresco Cloud Store Build Project" default="build-amp" basedir=".">
-	
-    <property name="alfresco.install.dir" value="C:/Alfresco"/>   
-    <property name="alfresco.deploy.dir" value="${alfresco.install.dir}/tomcat/webapps"/>
+<project name="Alfresco Cloud Store Build Project" default="build-amp" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+    <path id="maven-ant-tasks.classpath" path="buildscript-lib/maven-ant-tasks-2.1.3.jar" />
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+
     <property name="ref.lib" value="${basedir}\buildscript-lib"/>
     <property name="project.dir" value="${basedir}"/>
-    <property name="build.dir" value="${project.dir}/appbuild"/>
+    <property name="project.version" value="1.0"/>
+    <property name="project.name" value="alfresco-amazon-s3-contentstore"/>
+    <property name="build.dir" value="${project.dir}/target"/>
     <property name="config.dir" value="${project.dir}/config"/>
-    <property name="jar.file" value="${build.dir}/lib/alfresco-amazon-s3-contentstore.jar"/>
-    <property name="amp.file" value="${build.dir}/amp/alfresco-amazon-s3-contentstore.amp"/>
-    <property name="alfresco.war.file" value="C:/Alfresco/tomcat/webapps/alfresco.war"/>
+    <property name="jar.file" value="${build.dir}/lib/${project.name}-${project.version}.jar"/>
+    <property name="amp.file" value="${build.dir}/amp/${project.name}-${project.version}.amp"/>
+    <property name="artifact.pom" value="${build.dir}/${project.name}-${project.version}.pom" />
+    <property name="artifact.type" value="amp" />
+    <property name="artifact.group" value="com.hotchalk" />
+    <property name="artifact.repository" value="http://edify.artifactoryonline.com/edify/hotchalk-local/" />
 	
-    <target name="-clean">
-        <delete dir="${build.dir}/amp"/>
-        <delete dir="${build.dir}/lib" />
-        <delete dir="${build.dir}/classes"/>
+    <target name="clean">
+        <delete dir="${build.dir}"/>
     </target>
                        
-    <target name="-init" depends="-clean">
+    <target name="init" depends="clean">
         <mkdir dir="${build.dir}/amp" />
         <mkdir dir="${build.dir}/lib" />
         <mkdir dir="${build.dir}/classes" />
@@ -50,7 +53,7 @@
         <fileset dir="${ref.lib}" includes="**/*.jar"/>
     </path>
 
-    <target name="-compile" depends="-init">
+    <target name="-compile" depends="init">
        <javac debug="true" classpathref="class.path" srcdir="${project.dir}/src" 
        		destdir="${build.dir}/classes" includeantruntime="true"/>
     </target>
@@ -71,21 +74,19 @@
         	     excludes="lib/commons-logging-1.1.1.jar lib/commons-httpclient-3.1.jar" />
         </zip>
     </target>
-	
-    <target name="deploy-war" depends="build-amp" description="Deploy the war file to alfresco webapps" >
-	      <echo>Installing amp into war files..</echo>
-		  <java dir="." fork="true"
-		    classname="org.alfresco.repo.module.tool.ModuleManagementTool">
-		    <classpath refid="class.path"/>
-		    <arg line="install ${build.dir}/amp/ ${alfresco.war.file}
-		              -directory -force"/>
-		  </java>
-			
-		  <java dir="." fork="true"
-		      classname="org.alfresco.repo.module.tool.ModuleManagementTool">
-		      <classpath refid="class.path"/>
-		      <arg line="list ${alfresco.war.file}"/>
-		  </java>
-		  <echo>Deployment has been completed..</echo>
+
+    <target name="release-amp" depends="build-amp" description="Deploy the amp file to configured repository">
+        <fail message="Property 'artifact.repository' not defined" unless="artifact.repository" />
+        <fail message="Property 'artifactoryUsername' not defined" unless="artifactoryUsername" />
+        <fail message="Property 'artifactoryPassword' not defined" unless="artifactoryPassword" />
+
+        <artifact:pom id="tmp.pom" groupid="${artifact.group}" artifactid="${project.name}" version="${project.version}" packaging="${artifact.type}" name="${project.name}" />
+        <artifact:writepom pomRefId="tmp.pom" file="${artifact.pom}" />
+        <artifact:deploy file="${amp.file}">
+            <remoteRepository url="${artifact.repository}">
+                <authentication username="${artifactoryUsername}" password="${artifactoryPassword}" />
+            </remoteRepository>
+            <pom file="${artifact.pom}" />
+        </artifact:deploy>
     </target>
 </project>
